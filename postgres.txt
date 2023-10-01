@@ -1,0 +1,388 @@
+TABLE SCHEMAS MODELLED FROM dbdiagram.io:
+
+Table users {
+  id SERIAL [pk, increment]
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  username VARCHAR(30)
+  bio VARCHAR(400)
+  avatar VARCHAR(200)
+  phone VARCHAR(25)
+  email VARCHAR(40)
+  password VARCHAR(50)
+  status VARCHAR(15)
+}
+
+Table comments {
+  id SERIAL [pk, increment]
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  content VARCHAR(240)
+  user_id INTEGER [ref: > users.id]
+  post_id INTEGER [ref: > posts.id]
+}
+
+Table posts {
+  id SERIAL [pk, increment]
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  url VARCHAR(200)
+  user_id INTEGER [ref: > users.id]
+  caption VARCHAR(240)
+  lat REAL
+  lng REAL
+}
+
+Table likes {
+  id SERIAL [pk, increment]
+  created_at TIMESTAMP
+  user_id INTEGER [ref: > users.id]
+  post_id INTEGER [ref: > posts.id]
+  comment_id INTEGER [ref: > comments.id]
+}
+
+Table photo_tags {
+  id INTEGER [pk, increment]
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  post_id INTEGER [ref: > posts.id]
+  user_id INTEGER [ref: > users.id]
+  x INTEGER
+  Y integer
+}
+
+Table caption_tags {
+  id INTEGER [pk, increment]
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  post_id INTEGER [ref: > posts.id]
+  user_id INTEGER [ref: > users.id]
+}
+
+Table hashtags {
+  id SERIAL [pk, increment]
+  created_at TIMESTAMP
+  title VARCHAR(20)
+}
+
+Table hashtags_posts {
+  id SERIAL [pk, increment]
+  post_id INTEGER [ref: > posts.id]
+  hashtag_id INTEGER [ref: > hashtags.id]
+}
+
+Table followers {
+  id SERIAL [pk, increment]
+  created_at TIMESTAMP
+  leader_id INTEGER [ref: > users.id]
+  follower_id INTEGER [ref: > users.id]
+}
+
+
+
+
+
+
+
+
+CREATE A NEW DATABASE CALLED instagram IN PGADMIN BY RIGHT-CLICKING DATABASES -> CREATE -> DATABASE -> ENTER NAME -> SAVE (WITH DEFAULT OPTIONS)
+RIGHT CLICK THE NEWLY CREATED DATABASE AND THEN CLICK Query Tool TO EXECUTE SQL COMMANDS. THIS QUERY TOOL IS SPECIFIC TO THE DATABASE THAT YOU OPENED IT ON    .
+
+
+
+CREATING TABLES:
+
+
+
+-- CREATE TABLE users (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	username VARCHAR(30) NOT NULL,
+-- 	bio VARCHAR(400),
+-- 	avatar VARCHAR(200),
+-- 	phone VARCHAR(25),
+-- 	email VARCHAR(40),
+-- 	password VARCHAR(50),
+-- 	status VARCHAR(15),
+-- 	CHECK(COALESCE(phone, email) IS NOT NULL)
+-- );
+
+
+
+-- CREATE TABLE posts (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	url VARCHAR(200) NOT NULL,
+-- 	caption VARCHAR(240),
+-- 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	lat REAL CHECK(lat IS NULL OR (lat >= -90 AND lat <= 90)),
+-- 	lng REAL CHECK(lng IS NULL OR (lng >= -180 AND lng <= 180))
+-- );
+
+
+
+-- CREATE TABLE comments (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	contents VARCHAR(240) NOT NULL,
+-- 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE
+-- );
+
+
+
+-- CREATE TABLE likes (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+-- 	comment_id INTEGER REFERENCES comments(id) ON DELETE CASCADE,
+-- 	CHECK(
+-- 		COALESCE((post_id)::BOOLEAN::INTEGER, 0) 
+-- 		+	 
+-- 		COALESCE((comment_id)::BOOLEAN::INTEGER, 0) 
+-- 		= 1
+-- 	),
+-- 	UNIQUE(user_id, post_id, comment_id)
+-- );
+
+
+
+-- CREATE TABLE photo_tags (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+-- 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	x INTEGER NOT NULL,
+-- 	y INTEGER NOT NULL,
+-- 	UNIQUE(user_id, post_id)
+-- );
+
+
+
+-- CREATE TABLE caption_tags (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+-- 	UNIQUE(user_id, post_id)
+-- );
+
+
+
+-- CREATE TABLE hashtags (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	title VARCHAR(20) NOT NULL,
+-- 	UNIQUE(title)
+-- );
+
+
+
+-- CREATE TABLE hashtags_posts (
+-- 	id SERIAL PRIMARY KEY,
+-- 	hashtag_id INTEGER NOT NULL REFERENCES hashtags(id) ON DELETE CASCADE,
+-- 	post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+-- 	UNIQUE(hashtag_id, post_id)
+-- );
+	
+	
+	
+-- CREATE TABLE followers (
+-- 	id SERIAL PRIMARY KEY,
+-- 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+-- 	leader_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	follower_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+-- 	CHECK(leader_id != follower_id),
+-- 	UNIQUE(leader_id, follower_id)
+-- );
+
+
+
+LOAD SEED DATA FROM postgres_ig_seed.sql FILE:
+RIGHT CLICK THE instagram DATABASE THAT WE CREATED -> RESTORE -> BROWSE AND SELECT THE postgres_ig_seed.sql FILE.
+GO TO "Data Options" SECTION:
+	NEXT, IN THE "Type of Objects" SECTION, SELECT "Only Data" TO YES.
+	NEXT, IN THE "Do not Save" SECTION, SELECT "Owner" TO YES.
+GO TO "Query Options" SECTION:
+	NEXT, SELECT "Single Transcation" TO YES.
+GO TO "Options" SECTION:
+	NEXT, IN THE "Disable" SECTION, SELECT "Triggers" TO YES.
+	NEXT, IN THE "Miscellaneous/Behaviour" SECTION, SELECT "Verbose Messages" TO YES.
+FINALLY CLICK ON THE Restore BUTTON TO RESTORE THE DATA (WILL TAKE A COUPLE OF SECONDS/MINUTES).
+
+
+
+IF YOU NEED TO RESTORE THE DATABASE TO THIS INITIAL STATE IN FUTURE, CLOSE ANY OPEN QUERY TOOL WINDOWS AND THEN GO TO THE DASHBOARD.
+FROM THE SERVER ACTIVITY -> SESSIONS TAB, TERMINATE ALL OTHER SESSIONS EXCEPT FOR THE DATABASE CONNECTION SESSION.
+THEN RIGHT-CLICK ON THE DATABASE FROM THE LEFT PANE AND DELETE/DROP THE DATABASE. THEN RECREATE A FRESH NEW DATABASE WITH THE SAME NAME.
+NOW RESTORE DATABASE FROM THE postgres_ig_seed.sql FILE AS BEFORE,
+EXCEPT THIS TIME, IN THE "Data Options" SECTION, "Only Data" AND "Only Schema" BOTH SHOULD NOT BE SELECTED AS WE ARE GOING TO IMPORT BOTH THE TABLES AND THEIR DATA.
+
+
+
+
+QUERIES:
+
+
+-- SELECT COUNT(*) FROM users;
+
+-- SELECT COUNT(*) FROM likes;
+
+-- SELECT * FROM users
+-- ORDER BY id DESC
+-- LIMIT 3;
+
+-- SELECT username, caption
+-- FROM users JOIN posts 
+-- ON users.id = posts.user_id
+-- WHERE users.id = 200;
+
+-- SELECT username, COUNT(*) AS likes
+-- FROM likes JOIN users
+-- ON likes.user_id = users.id
+-- GROUP BY username;
+
+
+
+
+POSTGRES INTERNALS:
+TO VIEW CONFIGURATION OPTIONS IN POSTGRES, WE USE THE "SHOW" COMMAND
+WE CAN VIEW THE LOCATION WHERE POSTGRES IS INSTALLED USING
+-- SHOW data_directory;
+FROM HERE, GO TO data/base TO VIEW ALL THE DATABASE RELATED DATA
+
+USE THIS COMMAND TO FIND OUT THE DATABASE TO NUMERIC ID MAPPING
+-- SELECT oid, datname
+-- FROM pg_database;
+
+
+FIND WHAT EACH BINARY DATA FILE INSIDE THE DATABASE DIRECTORY CONTAINS:State changes should be logged before any heavy update to permanent storage
+-- SELECT * FROM pg_class;
+
+NOTE THAT POSTGRES STORES ALL THE DATA IN FILES IN THE FORM OF BINARY IN THE STORAGE DISK.
+FIND THE ROW WITH relname SET AS users FROM THE QUERY RESULT TO GET THE FILE THE CONTAINS THE users TABLE DATA.
+SPECIFICALLY, THIS FILE IS CALLED A HEAP / HEAP FILE THAT STORES ALL THE ROWS OF A PARTICULAR TABLE.
+THE HEAP FILE IS DIVIDED INTO MANY DIFFERENT BLOCKS/PAGES. EACH BLOCK/PAGE STORES SOME NUMBER OF ROWS FROM THE HEAP.
+A BLOCK FILE IS ALWAYS 8KB (8096 BYTEs) IN SIZE REGARDLESS OF HOW MANY ROWS/TUPLES/ITEMS OF DATA IT CONTAINS (EVEN WHEN EMPTY, 
+IT IS 8KB IN SIZE). 
+EACH BLOCK/PAGE CONTAINS MANY DIFFERENT TUPLE/ITEMS/ROWS. A TUPLE/ITEM CONTAINS AN INDIVIDUAL ROW FROM A TABLE. 
+YOU CAN VISUALIZE A HEAP FILE IN A HEX-EDITOR. THIS WILL SHOW THE HEX-CODE OF EACH BYTE STORED IN THE HEAP FILE, THE ACTUAL DECODED
+TEXT AS WELL AS BINARY FORM OF THE BYTE. 
+
+KEEP IN MIND THAT YOU WILL REACH THE SECOND BLOCK/PAGE AFTER THE FIRST 8096 HEX CODES. THE HEX EDITOR USUALLY SHOWS 16 BYTES IN A ROW.
+The first 24 bytes of each page consists of a page header (PageHeaderData). Out of this 24, the first 8 bytes contain the WAL record for changes to the page.
+PostGres uses WAL method to log State changes before any heavy update to the actual data in the permanent storage file.
+The next 2 bytes are reserved for the checksum (hash cipher) of the page block.
+Next is a 2-byte field containing flag bits
+Next 6 bytes contain byte offsets from the page start to the start of unallocated space, to the end of unallocated space, and to the start of the special space
+start and unallocated space end. These are stored as three 2 byte integer fields (pd_lower, pd_upper, and pd_special).
+The next 2 bytes store page size and layout version of the page/block.
+The last 2 bytes stores the last field as a hint that shows whether pruning the page is likely to be profitable: it tracks the oldest un-pruned XMAX on the page
+All these details can be found in "src/include/storage/bufpage.h".
+
+
+Following the page header are item identifiers (ItemIdData), each requiring four bytes. An item identifier contains a byte-offset to the start of an item, its length in bytes, and a few attribute bits which affect its interpretation. New item identifiers are allocated as needed from the beginning of the unallocated space. The number of item identifiers present can be determined by looking at pd_lower, which is increased to allocate a new identifier. Because an item identifier is never moved until it is freed, its index can be used on a long-term basis to reference an item, even when the item itself is moved around on the page to compact free space. In fact, every pointer to an item (ItemPointer, also known as CTID) created by PostgreSQL consists of a page number and the index of an item identifier.
+
+The items themselves are stored in space allocated backwards from the end of unallocated space. New item identifiers are allocated from the start of the unallocated space, new items from the end. The exact structure varies depending on what the table is to contain. Tables and sequences both use a structure named HeapTupleHeaderData, described below.
+
+The final section is the “special section” which can contain anything the access method wishes to store. For example, b-tree indexes store links to the page's left and right siblings, as well as some other data relevant to the index structure. Ordinary tables do not use a special section at all (indicated by setting pd_special to equal the page size).
+
+
+		|------------------------------|------------------------|-------------------|-------------------------------------------|
+		|			       |			|	itemID	    |    					|
+		|	PageHeaderData	       |	ItemID		|		    |---------------------->>			|
+		|------------------------------|-----------|------------|----------|--------|						|
+		|					   | 			   |							|
+		|					   |-----------------------|--------| 						|
+		|					   			   |	    |						|
+		|						         |---------|	    |						|
+		|							 |		    |						|
+		|							 |	 	    |	 					|
+		|							 |		    |						|
+		|							 V		    V						|
+		|						   |----------------|------------------|--------------------------------|
+		|					<<---------|		    |	  Item	       |				|
+		|						   |	Item	    |		       |	Special			|
+		|--------------------------------------------------|----------------|------------------|--------------------------------|
+
+
+All table rows are structured in the same way. There is a fixed-size header (occupying 23 bytes on most machines), followed by an optional null bitmap, an optional object ID field, and the user data. The actual user data (columns of the row) begins at the offset indicated by t_hoff, which must always be a multiple of the MAXALIGN distance for the platform. The null bitmap is only present if the HEAP_HASNULL bit is set in t_infomask. If it is present it begins just after the fixed header and occupies enough bytes to have one bit per data column (that is, the number of bits that equals the attribute count in t_infomask2). In this list of bits, a 1 bit indicates not-null, a 0 bit is a null. When the bitmap is not present, all columns are assumed not-null. The object ID is only present if the HEAP_HASOID_OLD bit is set in t_infomask. If present, it appears just before the t_hoff boundary. Any padding needed to make t_hoff a MAXALIGN multiple will appear between the null bitmap and the object ID. (This in turn ensures that the object ID is suitably aligned.)
+All the details can be found in "src/include/access/htup_details.h".
+
+Interpreting the actual data can only be done with information obtained from other tables, mostly pg_attribute. The key values needed to identify field locations are attlen and attalign. There is no way to directly get a particular attribute, except when there are only fixed width fields and no null values. All this trickery is wrapped up in the functions heap_getattr, fastgetattr and heap_getsysattr.
+
+To read the data you need to examine each attribute in turn. First check whether the field is NULL according to the null bitmap. If it is, go to the next. Then make sure you have the right alignment. If the field is a fixed width field, then all the bytes are simply placed. If it's a variable length field (attlen = -1) then it's a bit more complicated. All variable-length data types share the common header structure struct varlena, which includes the total length of the stored value and some flag bits. Depending on the flags, the data can be either inline or in a TOAST table; it might be compressed, too.
+
+THE CONCATENATED BINARY VALUES UNDER THE '0C' and '0D' COLUMNS IN FIRST ROW OF THE HEX EDITOR, CORRESPONDS TO AN uint16 INTEGER THAT SPECIFIES THE NUMBER OF BYTES FROM THE PAGE START TO 
+SKIP TO REACH THE FREE-SPACE PART OF THE PAGE/BLOCK. SIMILARLY, THE '0E' and '0F' COLUMNS OF THE FIRST ROW IN HEX EDITOR SPECIFY THE NUMBER OF BYTES TO SKIP FROM THE START OF THE PAGE/BLOCK TO REACH THE END OF THE FREE-SPACE AND THE BEGINING OF THE ITEM/TUPLE (ROW) DATA ITSELF. 
+SIMILARLY, YOU CAN TRACE OUT THE ITEM-IDs SECTION OF THE PAGE AND GET THE BYTE-OFFSET TO REACH THE START OF THE ITEM/TUPLE/ROW DATA AS WELL AS THE LENGTH OF THE ITEM/TUPLE DATA
+IN BYTES. KEEP IN MIND THAT THE ORDER OF ITEM-ID TO ITEM MAPPING IS REVERSED: THE LAST ITEM-ID CORRESPONDS TO THE FIRST ITEM/TUPLE STORED IN THE PAGE/BLOCK. 
+
+IF WE GET TO THE FIRST ROW/TUPLE DATA AND SKIP THE FIRST HEADER WITH 23 + OPTIONAL BYTES, WE WILL GET THE ID OF THE ACTUAL ROW:
+
+SELECT * FROM users WHERE username = 'Gene76'
+
+YOU WILL SEE THAT THE ID RETURNED MATCHES THE uint16 DATA FOR THE STARTING BYTE OF THE ITEM/TUPLE!
+
+
+POSTGRES ACTUALLY LOADS THESE HEAP FILES INTO MEMORY (RAM) AND ITERATES OVER THE RECORDS ONE-BY-ONE IN ORDER TO EXECUTE QUERIES. THIS IS CALLED AS A "FULL TABLE SCAN".
+THIS HAS A HUGE IMPACT ON THE PERFORMANCE OF QUERIES. THIS IS WHERE "INDEXES" COME INTO PICTURE. AN INDEX IS A TREE-LIKE DATA STRUCTURE THAT EFFICIENTLY TELLS WHAT POSITION IN A 
+BLOCK/PAGE, IS THE RECORD STORED AT! USING AN INDEX, WE CAN LOAD UP ONLY THE BLOCKS REQUIRED TO EXECUTE THE QUERY (LOAD ONLY THE BLOCKS WITH AFFECTED RECORDS INTO RAM)!
+INDEXES ARE CREATED FOR SPECIFIC COLUMNS OF THE TABLE ON WHICH YOU WANT TO PERFORM FAST LOOKUPS! ALL THE INDEX DATA IS SORTED BY SOME ORDER AND THEN EVENLY DISTRIBUTED
+INTO A TREE DATA STRUCTURE IN LEFT-TO-RIGHT ORDER. EVERY PARENT NODE IN THIS TREE DATA STRUCTURE WILL HAVE A CONDITIONAL THAT HELPS TO TRAVERSE THE TREE AND FIND
+THE HEAP FILE AS WELL AS A POINTER TO THE START OF THE ITEM/TUPLE/ROW DATA IN THAT BLOCK/PAGE FROM ITS DESCENDANT NODES.
+POSTGRES AUTOMATICALLY CREATES AN INDEX FOR THE PRIMARY KEY COLUMN OF EVERY TABLE! ALSO FOR COLUMNS WITH THE "UNIQUE" CONSTRAINT! BUT THESE INTERNAL INDEXES
+WILL NOT BE LISTED IN PGADMIN!
+
+-- SEE INTERNAL INDEXES CREATED BY POSTGRES FOR DATABASE:
+SELECT relname, relkind FROM pg_class
+WHERE relkind = 'i';
+
+-- CREATING AN INDEX (DEFAULT NAMING CONVENTION - users_username_idx):
+CREATE INDEX ON users (username);
+
+-- CREATING AN INDEX (MANUAL NAMING CONVENTION - my_idx):
+CREATE INDEX my_idx ON users (bio);
+
+-- DELETE AND INDEX:
+DROP INDEX my_idx;
+
+-- BENCHMARKING QUERIES:
+-- WITH INDEX: 0.07ms
+EXPLAIN ANALYZE SELECT * FROM users
+WHERE username = 'Emil30';
+
+-- DELETE THE INDEX
+DROP INDEX users_username_idx;
+
+-- QUERY PERFORMANCE WITHOUT INDEX: 0.7ms - UPTO 10X MORE TIME!
+EXPLAIN ANALYZE SELECT * FROM users
+WHERE username = 'Emil30';
+
+
+NOTE THAT INDEXES THEMSELVES ARE ACTUALLY STORED AS FILES IN PERMANENT STORAGE.
+-- STORAGE SIZE OF A TABLE:
+SELECT pg_size_pretty(pg_relation_size('users'));
+
+-- STORAGE SIZE OF AN INDEX:
+CREATE INDEX ON users (username);
+SELECT pg_size_pretty(pg_relation_size('users_username_idx'));
+
+DOWNSIDES OF INDEXES:
+* INDEXES CAN BE RATHER LARGE IN SIZE AS THEY STORE ALL THE DATA OF ATLEAST ONE COLUMN OF THE TABLE
+* INDEXES SLOW DOWN INSERT/DELETE/UPDATE OPERATIONS AS THEY HAVE TO BE UPDATED ALONG WITH THE TABLE IN SUCH CASES
+* SOME INDEXES MAY BE CREATED, BUT NEVER USED, LEADING TO WASTAGE IN STORAGE SPACE
+
+
+THE B-TREE DATA STRUCTURE IS USED FOR CREATING INDEXES IN THE VAST MAJORITY OF THE TIME. HOWEVER, THERE ARE CERTAIN SPECIAL CASES WHERE OTHER TYPES OF DATA STRUCTURES
+ARE USED TO CREATE INDEXES:
+* HASH: SPEED UP SIMPLE EQUALITY CHECKS
+* GIST: OPTIMIZED FOR GEOMETRY, FULL TEXT SEARCH
+* SP-GIST: OPTIMIZED FOR CLUSTERED DATA SUCH AS DATES WITH THE SAME YEAR ETC.
+* GIN: FOR COLUMNS WITH ARRAYS OR FOR JSON DATA
+* BRIN: SPECIALIZED FOR REALLY LARGE DATABASES
